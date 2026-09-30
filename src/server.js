@@ -19,7 +19,7 @@ app.use(express.json());
 // Delete
 
 // Criar usuário - CREATE
-app.post("/", async (req, res) => {
+app.post("/usuarios", async (req, res) => {
   try {
     const { nome, email } = req.body;
 
@@ -35,7 +35,7 @@ app.post("/", async (req, res) => {
 });
 
 // Listar usuários - READ
-app.get("/", async (req, res) => {
+app.get("/usuarios", async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT * FROM usuarios");
 
@@ -45,8 +45,38 @@ app.get("/", async (req, res) => {
   }
 });
 
+// Listar usuários - READ
+app.get("/atendentes", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM atendentes");
+
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ erro: "Falha ao listar atendentes" });
+  }
+});
+
+// Buscar um usuário pelo ID - READ
+app.get("/usuarios/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await pool.query(
+      "SELECT * FROM usuarios WHERE id = ? LIMIT 1",
+      [id]
+    );
+
+    if (!rows.length)
+      return res.status(404).json({ erro: "Usuário não encontrado" });
+
+    res.json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ erro: "Falha ao buscar usuário" });
+  }
+});
+
 // Atualizar usuário - UPDATE
-app.put("/:id", async (req, res) => {
+app.put("/usuarios/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { nome, email } = req.body;
@@ -66,7 +96,7 @@ app.put("/:id", async (req, res) => {
 });
 
 // Deletar usuário - DELETE
-app.delete("/:id", async (req, res) => {
+app.delete("/usuarios/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
